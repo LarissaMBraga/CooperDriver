@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>App de Localização</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      background-color: #068106;
+      color: white;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    #app-container {
+      width: 100%;
+      max-width: 500px;
+      padding: 20px;
+      text-align: center;
+    }
+    .campo {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin: 10px auto;
+    }
+    .campo label {
+      margin-right: 10px;
+      font-size: 0.9rem;
+    }
+    .campo input[type="text"] {
+      padding: 6px;
+      width: 40%;
+      border: none;
+      border-radius: 5px;
+      font-size: 0.85rem;
+    }
+    .label {
+      margin-top: 15px;
+      font-weight: bold;
+      font-size: 0.95rem;
+    }
+    .info {
+      font-size: 0.85rem;
+      margin-bottom: 5px;
+    }
+    button {
+      margin: 10px 5px;
+      padding: 10px 20px;
+      font-size: 1rem;
+      background-color: white;
+      color: #007BFF;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    button:hover {
+      opacity: 0.9;
+    }
+    #navegacao {
+      margin-top: 30px;
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+    #navegacao button {
+      background-color: #068106;
+      color: white;
+      border: none;
+    }
+    #historico {
+      display: none;
+    }
+    .card {
+      background: white;
+      color: black;
+      padding: 10px;
+      margin: 10px auto;
+      border-radius: 10px;
+      width: 90%;
+      text-align: left;
+      position: relative;
+      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+    }
+    .lixeira {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      background: red;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      width: 25px;
+      height: 25px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div id="app-container">
+    <div id="principal">
+      <div class="campo">
+        <label for="nome">Nome:</label>
+        <input type="text" id="nome" placeholder="Nome" />
+      </div>
+      <div class="campo">
+        <label for="valor">Valor:</label>
+        <input type="text" id="valor" placeholder="Valor" value="25" />
+      </div>
+
+      <div class="label">Localização inicial:</div>
+      <div id="localizacaoInicial" class="info">Carregando...</div>
+
+      <div class="label">Localização final:</div>
+      <div id="localizacaoFinal" class="info">Aguardando...</div>
+
+      <div class="label">Horário:</div>
+      <div class="info"><strong>Inicial:</strong> <span id="horaInicial">--:--:--</span></div>
+      <div class="info"><strong>Final:</strong> <span id="horaFinal">--:--:--</span></div>
+
+      <button id="btnIniciar">Iniciar</button>
+      <button id="btnCancelar" style="display:none">Cancelar</button>
+    </div>
+
+    <div id="historico">
+      <h3>Histórico</h3>
+      <div id="cards"></div>
+    </div>
+
+    <div id="navegacao">
+      <button onclick="mostrarTela('principal')">Entregas</button>
+      <button onclick="mostrarTela('historico')">Histórico</button>
+    </div>
+  </div>
+
+  <script>
+    let btnIniciar = document.getElementById("btnIniciar");
+    let btnCancelar = document.getElementById("btnCancelar");
+    let nomeInput = document.getElementById("nome");
+    let valorInput = document.getElementById("valor");
+    let localizacaoInicial = document.getElementById("localizacaoInicial");
+    let localizacaoFinal = document.getElementById("localizacaoFinal");
+    let horaInicial = document.getElementById("horaInicial");
+    let horaFinal = document.getElementById("horaFinal");
+    let cards = document.getElementById("cards");
+
+    let watchIdInicial, watchIdFinal;
+    let rodando = false;
+
+    let timerInicial, timerFinal;
+
+    function getEndereco(lat, lon, callback) {
+      fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`)
+        .then(res => res.json())
+        .then(data => {
+          const address = data.address;
+          const rua = address.road || "Rua desconhecida";
+          const numero = address.house_number || "s/n";
+          const bairro = address.suburb || address.neighbourhood || "Bairro desconhecido";
+          const cidade = address.city || address.town || address.village || "Cidade desconhecida";
+          callback(`${rua}, ${numero}, ${bairro}, ${cidade}`);
+        });
+    }
+
+    function atualizarHoraInicial() {
+      horaInicial.textContent = new Date().toLocaleTimeString();
+    }
+
+    function atualizarHoraFinal() {
+      horaFinal.textContent = new Date().toLocaleTimeString();
+    }
+
+    function atualizarLocalizacaoInicial() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((pos) => {
+          getEndereco(pos.coords.latitude, pos.coords.longitude, (endereco) => {
+            localizacaoInicial.textContent = endereco;
+          });
+        });
+      }
+    }
+
+    setInterval(atualizarHoraInicial, 1000); // O horário inicial começa a contar assim que o app é aberto
+    setInterval(atualizarLocalizacaoInicial, 5000); // A localização inicial começa a ser atualizada automaticamente
+
+    function iniciarMonitoramentoFinal() {
+      // Atualiza a hora final assim que iniciar o monitoramento
+      atualizarHoraFinal();
+      timerFinal = setInterval(atualizarHoraFinal, 1000);
+
+      if (navigator.geolocation) {
+        watchIdFinal = navigator.geolocation.watchPosition((pos) => {
+          getEndereco(pos.coords.latitude, pos.coords.longitude, (endereco) => {
+            if (!rodando) return;
+            localizacaoFinal.textContent = endereco;
+          });
+        });
+      }
+    }
+
+    function salvarCards() {
+      const cardsData = Array.from(document.querySelectorAll(".card")).map(card => {
+        return {
+          html: card.innerHTML,
+          timestamp: Date.now()
+        };
+      });
+      localStorage.setItem("cards", JSON.stringify(cardsData));
+    }
+
+    function carregarCards() {
+      const cardsData = JSON.parse(localStorage.getItem("cards")) || [];
+      const agora = Date.now();
+      cards.innerHTML = "";
+      cardsData.forEach(card => {
+        if (agora - card.timestamp < 30 * 24 * 60 * 60 * 1000) {
+          const div = document.createElement("div");
+          div.className = "card";
+          div.innerHTML = card.html;
+          cards.appendChild(div);
+        }
+      });
+    }
+
+    function iniciar() {
+      rodando = true;
+      btnIniciar.textContent = "Finalizar";
+      btnCancelar.style.display = "inline";
+
+      const agora = new Date();
+      horaInicial.textContent = agora.toLocaleTimeString();
+
+      // Parar o monitoramento da localização inicial e começar o da localização final
+      clearInterval(timerInicial);
+      clearInterval(watchIdInicial);
+      
+      iniciarMonitoramentoFinal();
+    }
+
+    function finalizar() {
+      rodando = false;
+      btnIniciar.textContent = "Iniciar";
+      btnCancelar.style.display = "none";
+      clearInterval(timerFinal);
+      navigator.geolocation.clearWatch(watchIdFinal);
+
+      const dataAtual = new Date().toLocaleDateString();
+      const card = document.createElement("div");
+      card.className = "card";
+      card.innerHTML = `
+        <button class="lixeira" onclick="this.parentElement.remove();salvarCards();">&#128465;</button>
+        <strong>Data:</strong> ${dataAtual}<br>
+        <strong>Nome:</strong> ${nomeInput.value}<br>
+        <strong>Valor:</strong> R$ ${valorInput.value}<br>
+        <strong>Hora Inicial:</strong> ${horaInicial.textContent}<br>
+        <strong>Hora Final:</strong> ${horaFinal.textContent}<br>
+        <strong>Localização:</strong> ${localizacaoFinal.textContent}
+      `;
+      cards.appendChild(card);
+      salvarCards();
+
+      nomeInput.value = "";
+      valorInput.value = "25";
+      localizacaoInicial.textContent = "Carregando...";
+      localizacaoFinal.textContent = "Aguardando...";
+    }
+
+    btnIniciar.addEventListener("click", () => {
+      if (!rodando) iniciar();
+      else finalizar();
+    });
+
+    btnCancelar.addEventListener("click", () => {
+      rodando = false;
+      btnIniciar.textContent = "Iniciar";
+      btnCancelar.style.display = "none";
+      clearInterval(timerFinal);
+      navigator.geolocation.clearWatch(watchIdFinal);
+    });
+
+    function mostrarTela(tela) {
+      document.getElementById("principal").style.display = tela === 'principal' ? "block" : "none";
+      document.getElementById("historico").style.display = tela === 'historico' ? "block" : "none";
+    }
+
+    window.onload = () => {
+      carregarCards();
+      // Começa o monitoramento da localização inicial assim que o app é aberto
+      watchIdInicial = navigator.geolocation.watchPosition((pos) => {
+        getEndereco(pos.coords.latitude, pos.coords.longitude, (endereco) => {
+          localizacaoInicial.textContent = endereco;
+        });
+      });
+    };
+  </script>
+</body>
+</html>
