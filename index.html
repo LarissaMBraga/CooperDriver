@@ -1,289 +1,224 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Registro de Entregas</title>
+  <meta charset="UTF-8">
+  <title>Controle de Deslocamento</title>
   <style>
     body {
       font-family: Arial, sans-serif;
       margin: 0;
-      background: #e9f9e7;
-      color: #333;
-      display: flex;
-      height: 100vh;
+      background-color: #f0f0f0;
     }
 
-    .container {
-      max-width: 500px;
-      margin: 20px;
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      flex: 1;
-    }
-
-    h2 {
+    header {
+      background-color: #4CAF50;
+      color: white;
+      padding: 1rem;
       text-align: center;
-      color: #28a745;
+      font-size: 1.5rem;
     }
 
-    label {
-      font-weight: bold;
+    main {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem;
     }
 
-    input[type="text"],
-    input[type="number"] {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 1em;
-    }
-
-    .info {
-      margin: 10px 0;
-      padding: 10px;
-      background: #e6f7e6;
-      border-left: 5px solid #28a745;
-      border-radius: 8px;
+    .localizacao {
+      margin: 1rem 0;
+      text-align: center;
     }
 
     button {
-      padding: 10px 20px;
-      margin: 10px 0;
+      padding: 1rem 2rem;
+      font-size: 1rem;
+      background-color: #4CAF50;
+      color: white;
       border: none;
       border-radius: 8px;
       cursor: pointer;
-      font-weight: bold;
-      font-size: 1em;
+      margin-bottom: 1rem;
     }
 
-    #btnIniciar {
-      background-color: #28a745;
-      color: white;
+    button:hover {
+      background-color: #45a049;
     }
 
-    #btnCancelar {
-      background-color: #dc3545;
-      color: white;
-      display: none;
-    }
-
-    #btnHistorico {
-      background-color: #17a2b8;
-      color: white;
-      display: block;
-      width: 100%;
-      padding: 12px;
-      font-size: 1.2em;
-    }
-
-    #historico {
-      display: none;
-      margin-top: 20px;
+    .historico {
+      width: 90%;
+      max-width: 600px;
     }
 
     .card {
-      background: #fff;
+      background-color: white;
       border: 1px solid #ddd;
-      margin: 10px 0;
-      padding: 15px;
-      border-radius: 8px;
-      position: relative;
-      transition: all 0.3s ease;
-      cursor: pointer;
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
 
-    .card.expandido .detalhes {
-      display: block;
+    .card-header {
+      font-weight: bold;
+      margin-bottom: 0.5rem;
     }
 
-    .detalhes {
+    .card-info {
+      font-size: 0.9rem;
+      color: #555;
+    }
+
+    .botoes-card {
+      margin-top: 0.5rem;
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .botoes-card button {
+      background-color: #f44336;
+      font-size: 0.8rem;
+      padding: 0.5rem 1rem;
+      border-radius: 5px;
+    }
+
+    .botoes-card button:hover {
+      background-color: #d32f2f;
+    }
+
+    .voltar-btn {
+      background-color: #2196F3;
+      margin-top: 2rem;
+    }
+
+    .voltar-btn:hover {
+      background-color: #1976D2;
+    }
+
+    #telaHistorico {
       display: none;
-      margin-top: 5px;
-      font-size: 0.9em;
     }
 
-    .lixeira {
-      position: absolute;
-      right: 10px;
-      top: 10px;
-      background: transparent;
-      border: none;
-      cursor: pointer;
-      font-size: 18px;
-    }
-
-    #btnVoltar {
-      background-color: #28a745;
-      color: white;
-      width: 100%;
-      padding: 12px;
-      font-size: 1.2em;
-      border-radius: 8px;
-    }
-
-    .split {
-      display: flex;
-      flex: 1;
-      height: 100%;
-    }
-
-    .historico-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .entrega-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
+    .mostrar {
+      display: block !important;
     }
   </style>
 </head>
 <body>
-  <div class="split">
-    <div class="entrega-container">
-      <div class="container" id="principal">
-        <h2>Entrega</h2>
-        <label for="nome">Nome:</label>
-        <input type="text" id="nome" placeholder="Digite o nome" />
+  <header>
+    Controle de Deslocamento
+  </header>
 
-        <label for="valor">Valor:</label>
-        <input type="number" id="valor" value="25" min="0" />
-
-        <div class="info">Localização Inicial: <span id="localizacaoInicial">Carregando...</span></div>
-        <div class="info">Localização Final: <span id="localizacaoFinal">Aguardando...</span></div>
-        <div class="info">Hora Inicial: <span id="horaInicial">--:--:--</span></div>
-        <div class="info">Hora Final: <span id="horaFinal">00:00:00</span></div>
-
-        <button id="btnIniciar">Iniciar</button>
-        <button id="btnCancelar">Cancelar</button>
-        <button id="btnHistorico">Ver Histórico</button>
-      </div>
+  <main id="telaPrincipal">
+    <div class="localizacao">
+      <p id="statusLocalizacao">Clique em "Iniciar" para registrar a localização inicial.</p>
     </div>
+    <button id="botaoPrincipal">Iniciar</button>
+    <button onclick="mostrarHistorico()" class="voltar-btn">Ver Histórico</button>
+  </main>
 
-    <div class="historico-container" id="historico">
-      <div class="container">
-        <h2>Histórico</h2>
-        <div id="cards"></div>
-        <button id="btnVoltar">Voltar</button>
-      </div>
+  <main id="telaHistorico">
+    <div class="historico" id="historicoDeslocamentos">
+      <!-- cards de histórico vão aqui -->
     </div>
-  </div>
+    <button onclick="voltarTelaPrincipal()" class="voltar-btn">Voltar</button>
+  </main>
 
   <script>
-    const btnIniciar = document.getElementById("btnIniciar");
-    const btnCancelar = document.getElementById("btnCancelar");
-    const nomeInput = document.getElementById("nome");
-    const valorInput = document.getElementById("valor");
-    const localizacaoInicial = document.getElementById("localizacaoInicial");
-    const localizacaoFinal = document.getElementById("localizacaoFinal");
-    const horaInicial = document.getElementById("horaInicial");
-    const horaFinal = document.getElementById("horaFinal");
-    const cardsContainer = document.getElementById("cards");
-    const btnHistorico = document.getElementById("btnHistorico");
-    const btnVoltar = document.getElementById("btnVoltar");
+    let status = 0; // 0 = aguardando início, 1 = aguardando fim
+    let deslocamentoAtual = {};
 
-    let rodando = false;
-    let dadosIniciais = {};
+    const statusTexto = document.getElementById('statusLocalizacao');
+    const botao = document.getElementById('botaoPrincipal');
+    const telaPrincipal = document.getElementById('telaPrincipal');
+    const telaHistorico = document.getElementById('telaHistorico');
+    const historicoDeslocamentos = document.getElementById('historicoDeslocamentos');
 
-    function formatarHora(data) {
-      return data.toLocaleTimeString('pt-BR');
-    }
-
-    function obterLocalizacao(callback) {
+    botao.addEventListener('click', () => {
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          pos => {
-            const coords = `Lat: ${pos.coords.latitude.toFixed(4)}, Lng: ${pos.coords.longitude.toFixed(4)}`;
-            callback(coords);
-          },
-          () => callback("Não disponível")
-        );
+        navigator.geolocation.getCurrentPosition(salvarLocalizacao, erroLocalizacao);
       } else {
-        callback("Geolocalização não suportada");
+        alert("Geolocalização não suportada pelo seu navegador.");
+      }
+    });
+
+    function salvarLocalizacao(pos) {
+      const latitude = pos.coords.latitude.toFixed(5);
+      const longitude = pos.coords.longitude.toFixed(5);
+      const horario = new Date().toLocaleTimeString();
+
+      if (status === 0) {
+        deslocamentoAtual = {
+          inicio: { latitude, longitude, horario },
+        };
+        statusTexto.textContent = "Localização inicial registrada. Clique em 'Finalizar' ao chegar no destino.";
+        botao.textContent = "Finalizar";
+        status = 1;
+      } else {
+        deslocamentoAtual.fim = { latitude, longitude, horario };
+        salvarHistorico(deslocamentoAtual);
+        alert("Deslocamento registrado com sucesso!");
+        statusTexto.textContent = "Clique em 'Iniciar' para registrar a próxima localização inicial.";
+        botao.textContent = "Iniciar";
+        status = 0;
       }
     }
 
-    function resetarApp() {
-      nomeInput.value = "";
-      valorInput.value = "25";
-      localizacaoInicial.textContent = "Carregando...";
-      localizacaoFinal.textContent = "Aguardando...";
-      horaInicial.textContent = "--:--:--";
-      horaFinal.textContent = "00:00:00";
-      rodando = false;
-      btnIniciar.textContent = "Iniciar";
-      btnCancelar.style.display = "none";
-      obterLocalizacao(coords => {
-        localizacaoInicial.textContent = coords;
+    function erroLocalizacao(error) {
+      console.error(error);
+      alert("Erro ao obter localização.");
+    }
+
+    function salvarHistorico(dados) {
+      let historico = JSON.parse(localStorage.getItem('deslocamentos')) || [];
+      historico.push(dados);
+      localStorage.setItem('deslocamentos', JSON.stringify(historico));
+    }
+
+    function mostrarHistorico() {
+      telaPrincipal.style.display = 'none';
+      telaHistorico.style.display = 'flex';
+      carregarHistorico();
+    }
+
+    function voltarTelaPrincipal() {
+      telaHistorico.style.display = 'none';
+      telaPrincipal.style.display = 'flex';
+    }
+
+    function carregarHistorico() {
+      historicoDeslocamentos.innerHTML = '';
+      const historico = JSON.parse(localStorage.getItem('deslocamentos')) || [];
+
+      historico.forEach((item, index) => {
+        const card = document.createElement('div');
+        card.classList.add('card');
+
+        card.innerHTML = `
+          <div class="card-header">Deslocamento ${index + 1}</div>
+          <div class="card-info">Início: ${item.inicio.horario} (${item.inicio.latitude}, ${item.inicio.longitude})</div>
+          <div class="card-info">Fim: ${item.fim.horario} (${item.fim.latitude}, ${item.fim.longitude})</div>
+          <div class="botoes-card">
+            <button onclick="verDetalhes(${index})">Detalhes</button>
+            <button onclick="excluirDeslocamento(${index})">Excluir</button>
+          </div>
+        `;
+        historicoDeslocamentos.appendChild(card);
       });
     }
 
-    btnIniciar.addEventListener("click", () => {
-      if (!rodando) {
-        obterLocalizacao(coords => {
-          localizacaoInicial.textContent = coords;
-          horaInicial.textContent = formatarHora(new Date());
-          dadosIniciais = {
-            nome: nomeInput.value,
-            valor: valorInput.value,
-            localizacaoInicial: coords,
-            horaInicial: formatarHora(new Date())
-          };
-          rodando = true;
-          btnIniciar.textContent = "Finalizar";
-          btnCancelar.style.display = "inline-block";
-        });
-      } else {
-        obterLocalizacao(coords => {
-          const finalHora = formatarHora(new Date());
-          localizacaoFinal.textContent = coords;
-          horaFinal.textContent = finalHora;
+    function excluirDeslocamento(index) {
+      let historico = JSON.parse(localStorage.getItem('deslocamentos')) || [];
+      historico.splice(index, 1);
+      localStorage.setItem('deslocamentos', JSON.stringify(historico));
+      carregarHistorico();
+    }
 
-          const card = document.createElement("div");
-          card.className = "card";
-          card.innerHTML = `
-            <strong>${dadosIniciais.nome || 'Sem nome'}</strong>
-            <div class="detalhes">
-              Valor: R$ ${dadosIniciais.valor}<br>
-              Início: ${dadosIniciais.horaInicial} - ${dadosIniciais.localizacaoInicial}<br>
-              Fim: ${finalHora} - ${coords}
-            </div>
-            <button class="lixeira" onclick="this.parentElement.remove()">🗑️</button>
-          `;
-          card.addEventListener('click', function (e) {
-            if (!e.target.classList.contains('lixeira')) {
-              this.classList.toggle('expandido');
-            }
-          });
-
-          cardsContainer.prepend(card);
-          resetarApp();
-        });
-      }
-    });
-
-    btnCancelar.addEventListener("click", () => {
-      resetarApp();
-    });
-
-    btnHistorico.addEventListener("click", () => {
-      document.getElementById("principal").style.display = "none";
-      document.getElementById("historico").style.display = "block";
-    });
-
-    btnVoltar.addEventListener("click", () => {
-      document.getElementById("historico").style.display = "none";
-      document.getElementById("principal").style.display = "block";
-    });
-
-    resetarApp();
+    function verDetalhes(index) {
+      const historico = JSON.parse(localStorage.getItem('deslocamentos')) || [];
+      const deslocamento = historico[index];
+      alert(`Deslocamento ${index + 1}:\n\nInício: ${deslocamento.inicio.horario} (${deslocamento.inicio.latitude}, ${deslocamento.inicio.longitude})\nFim: ${deslocamento.fim.horario} (${deslocamento.fim.latitude}, ${deslocamento.fim.longitude})`);
+    }
   </script>
 </body>
 </html>
