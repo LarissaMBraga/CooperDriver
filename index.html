@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Registro de Corridas</title>
+  <title>Registro de Entregas</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -69,6 +69,15 @@
       display: none;
     }
 
+    #btnHistorico {
+      background-color: #17a2b8;
+      color: white;
+      display: block;
+      width: 100%;
+      padding: 12px;
+      font-size: 1.2em;
+    }
+
     #historico {
       display: none;
       margin-top: 20px;
@@ -105,15 +114,20 @@
       font-size: 18px;
     }
 
-    #btnHistorico {
-      background-color: #17a2b8;
+    #btnVoltar {
+      background-color: #28a745;
       color: white;
+      width: 100%;
+      padding: 12px;
+      font-size: 1.2em;
+      border-radius: 8px;
     }
+
   </style>
 </head>
 <body>
   <div class="container" id="principal">
-    <h2>Iniciar Corrida</h2>
+    <h2>Entrega</h2>
     <label for="nome">Nome:</label>
     <input type="text" id="nome" placeholder="Digite o nome" />
 
@@ -121,8 +135,8 @@
     <input type="number" id="valor" value="25" min="0" />
 
     <div class="info">Localização Inicial: <span id="localizacaoInicial">Carregando...</span></div>
-    <div class="info">Hora Inicial: <span id="horaInicial">--:--:--</span></div>
     <div class="info">Localização Final: <span id="localizacaoFinal">Aguardando...</span></div>
+    <div class="info">Hora Inicial: <span id="horaInicial">--:--:--</span></div>
     <div class="info">Hora Final: <span id="horaFinal">00:00:00</span></div>
 
     <button id="btnIniciar">Iniciar</button>
