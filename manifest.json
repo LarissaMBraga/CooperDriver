@@ -2,7 +2,7 @@
     "name": "App de Localização",
     "short_name": "Localização",
     "description": "Aplicativo para monitorar entregas com localização em tempo real.",
-    "start_url": "/",
+    "start_url": "https://larissambraga.github.io/CooperDriver/",
     "display": "standalone",
     "background_color": "#068106",
     "theme_color": "#068106",
