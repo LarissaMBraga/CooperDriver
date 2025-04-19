@@ -78,6 +78,8 @@
     }
     #historico {
       display: none;
+      max-height: 400px;
+      overflow-y: auto;
     }
     #historico h3 {
       position: sticky;
@@ -85,6 +87,7 @@
       background-color: #068106;
       margin: 0;
       padding: 10px;
+      z-index: 1;
     }
     .card {
       background: white;
@@ -96,6 +99,19 @@
       text-align: left;
       position: relative;
       box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    .card.expandido {
+      white-space: normal;
+    }
+    .card .detalhes {
+      display: none;
+      margin-top: 5px;
+      font-size: 0.85rem;
+    }
+    .card.expandido .detalhes {
+      display: block;
     }
     .lixeira {
       position: absolute;
@@ -108,6 +124,7 @@
       width: 25px;
       height: 25px;
       cursor: pointer;
+      z-index: 2;
     }
   </style>
 </head>
@@ -208,12 +225,20 @@
           const card = document.createElement("div");
           card.className = "card";
           card.innerHTML = `
-            <strong>${dadosIniciais.nome || 'Sem nome'}</strong><br>
-            Valor: R$ ${dadosIniciais.valor}<br>
-            Início: ${dadosIniciais.horaInicial} - ${dadosIniciais.localizacaoInicial}<br>
-            Fim: ${formatarHora(new Date())} - ${coords}
+            <strong>${dadosIniciais.nome || 'Sem nome'}</strong>
+            <div class="detalhes">
+              Valor: R$ ${dadosIniciais.valor}<br>
+              Início: ${dadosIniciais.horaInicial} - ${dadosIniciais.localizacaoInicial}<br>
+              Fim: ${formatarHora(new Date())} - ${coords}
+            </div>
             <button class="lixeira" onclick="this.parentElement.remove()">🗑️</button>
           `;
+          card.addEventListener('click', function (e) {
+            if (!e.target.classList.contains('lixeira')) {
+              this.classList.toggle('expandido');
+            }
+          });
+
           cardsContainer.prepend(card);
 
           rodando = false;
