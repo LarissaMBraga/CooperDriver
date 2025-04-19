@@ -2,167 +2,122 @@
 <html lang="pt-BR">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>App de Localização</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registro de Corridas</title>
   <style>
-    * {
-      box-sizing: border-box;
-    }
     body {
-      background-color: #068106;
-      color: white;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+      font-family: Arial, sans-serif;
+      margin: 20px;
+      background: #f0f0f0;
     }
-    #app-container {
-      width: 100%;
+
+    .container {
       max-width: 500px;
+      margin: auto;
+      background: white;
       padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    h2 {
       text-align: center;
     }
-    .campo {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin: 10px auto;
-    }
-    .campo label {
-      margin-right: 10px;
-      font-size: 0.9rem;
-    }
-    .campo input[type="text"] {
-      padding: 6px;
-      width: 40%;
-      border: none;
-      border-radius: 5px;
-      font-size: 0.85rem;
-    }
-    .label {
-      margin-top: 15px;
+
+    label {
       font-weight: bold;
-      font-size: 0.95rem;
     }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 8px;
+      margin-bottom: 10px;
+      border: 1px solid #ccc;
+      border-radius: 6px;
+    }
+
     .info {
-      font-size: 0.85rem;
-      margin-bottom: 5px;
+      margin: 10px 0;
+      padding: 10px;
+      background: #e6f7ff;
+      border-left: 5px solid #1890ff;
+      border-radius: 6px;
     }
+
     button {
-      margin: 10px 5px;
-      padding: 10px 20px;
-      font-size: 1rem;
-      background-color: white;
-      color: #007BFF;
+      padding: 10px 16px;
+      margin: 5px 5px 0 0;
       border: none;
-      border-radius: 10px;
+      border-radius: 6px;
       cursor: pointer;
-      transition: 0.3s;
+      font-weight: bold;
     }
-    button:hover {
-      opacity: 0.9;
-    }
-    #navegacao {
-      margin-top: 30px;
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-    }
-    #navegacao button {
-      background-color: #068106;
+
+    #btnIniciar {
+      background-color: #28a745;
       color: white;
-      border: none;
     }
-    #historico {
+
+    #btnCancelar {
+      background-color: #dc3545;
+      color: white;
       display: none;
-      max-height: 400px;
-      overflow-y: auto;
     }
-    #historico h3 {
-      position: sticky;
-      top: 0;
-      background-color: #068106;
-      margin: 0;
-      padding: 10px;
-      z-index: 1;
-    }
+
     .card {
-      background: white;
-      color: black;
+      background: #fff;
+      border: 1px solid #ddd;
+      margin: 10px 0;
       padding: 10px;
-      margin: 10px auto;
-      border-radius: 10px;
-      width: 90%;
-      text-align: left;
+      border-radius: 6px;
       position: relative;
-      box-shadow: 0 0 10px rgba(0,0,0,0.2);
+      transition: all 0.3s ease;
       cursor: pointer;
-      transition: 0.3s;
     }
-    .card.expandido {
-      white-space: normal;
-    }
-    .card .detalhes {
-      display: none;
-      margin-top: 5px;
-      font-size: 0.85rem;
-    }
+
     .card.expandido .detalhes {
       display: block;
     }
+
+    .detalhes {
+      display: none;
+      margin-top: 5px;
+      font-size: 0.9em;
+    }
+
     .lixeira {
       position: absolute;
-      top: 10px;
       right: 10px;
-      background: red;
-      color: white;
+      top: 10px;
+      background: transparent;
       border: none;
-      border-radius: 50%;
-      width: 25px;
-      height: 25px;
       cursor: pointer;
-      z-index: 2;
+      font-size: 18px;
     }
   </style>
 </head>
 <body>
-  <div id="app-container">
-    <div id="principal">
-      <div class="campo">
-        <label for="nome">Nome:</label>
-        <input type="text" id="nome" placeholder="Nome" />
-      </div>
-      <div class="campo">
-        <label for="valor">Valor:</label>
-        <input type="text" id="valor" placeholder="Valor" value="25" />
-      </div>
+  <div class="container" id="principal">
+    <h2>Iniciar Corrida</h2>
+    <label for="nome">Nome:</label>
+    <input type="text" id="nome" placeholder="Digite o nome" />
 
-      <div class="label">Localização inicial:</div>
-      <div id="localizacaoInicial" class="info">Carregando...</div>
+    <label for="valor">Valor:</label>
+    <input type="number" id="valor" value="25" min="0" />
 
-      <div class="label">Localização final:</div>
-      <div id="localizacaoFinal" class="info">Aguardando...</div>
+    <div class="info">Localização Inicial: <span id="localizacaoInicial">Carregando...</span></div>
+    <div class="info">Hora Inicial: <span id="horaInicial">--:--:--</span></div>
+    <div class="info">Localização Final: <span id="localizacaoFinal">Aguardando...</span></div>
+    <div class="info">Hora Final: <span id="horaFinal">--:--:--</span></div>
 
-      <div class="label">Horário:</div>
-      <div class="info"><strong>Inicial:</strong> <span id="horaInicial">--:--:--</span></div>
-      <div class="info"><strong>Final:</strong> <span id="horaFinal">--:--:--</span></div>
+    <button id="btnIniciar">Iniciar</button>
+    <button id="btnCancelar">Cancelar</button>
+  </div>
 
-      <button id="btnIniciar">Iniciar</button>
-      <button id="btnCancelar" style="display:none">Cancelar</button>
-    </div>
-
-    <div id="historico">
-      <h3>Histórico</h3>
-      <div id="cards"></div>
-    </div>
-
-    <div id="navegacao">
-      <button onclick="mostrarTela('principal')">Entregas</button>
-      <button onclick="mostrarTela('historico')">Histórico</button>
-    </div>
+  <div class="container" id="historico">
+    <h2>Histórico</h2>
+    <div id="cards"></div>
   </div>
 
   <script>
@@ -178,11 +133,6 @@
 
     let rodando = false;
     let dadosIniciais = {};
-
-    function mostrarTela(tela) {
-      document.getElementById("principal").style.display = tela === 'principal' ? 'block' : 'none';
-      document.getElementById("historico").style.display = tela === 'historico' ? 'block' : 'none';
-    }
 
     function formatarHora(data) {
       return data.toLocaleTimeString('pt-BR');
@@ -202,6 +152,21 @@
       }
     }
 
+    function resetarApp() {
+      nomeInput.value = "";
+      valorInput.value = "25";
+      localizacaoInicial.textContent = "Carregando...";
+      localizacaoFinal.textContent = "Aguardando...";
+      horaInicial.textContent = "--:--:--";
+      horaFinal.textContent = "--:--:--";
+      rodando = false;
+      btnIniciar.textContent = "Iniciar";
+      btnCancelar.style.display = "none";
+      obterLocalizacao(coords => {
+        localizacaoInicial.textContent = coords;
+      });
+    }
+
     btnIniciar.addEventListener("click", () => {
       if (!rodando) {
         obterLocalizacao(coords => {
@@ -219,9 +184,9 @@
         });
       } else {
         obterLocalizacao(coords => {
+          const finalHora = formatarHora(new Date());
           localizacaoFinal.textContent = coords;
-          const horaFinalFormatada = formatarHora(new Date());
-          horaFinal.textContent = horaFinalFormatada;
+          horaFinal.textContent = finalHora;
 
           const card = document.createElement("div");
           card.className = "card";
@@ -230,7 +195,7 @@
             <div class="detalhes">
               Valor: R$ ${dadosIniciais.valor}<br>
               Início: ${dadosIniciais.horaInicial} - ${dadosIniciais.localizacaoInicial}<br>
-              Fim: ${horaFinalFormatada} - ${coords}
+              Fim: ${finalHora} - ${coords}
             </div>
             <button class="lixeira" onclick="this.parentElement.remove()">🗑️</button>
           `;
@@ -241,25 +206,17 @@
           });
 
           cardsContainer.prepend(card);
-
-          rodando = false;
-          btnIniciar.textContent = "Iniciar";
-          btnCancelar.style.display = "none";
+          resetarApp();
         });
       }
     });
 
     btnCancelar.addEventListener("click", () => {
-      nomeInput.value = "";
-      valorInput.value = "25";
-      localizacaoInicial.textContent = "Carregando...";
-      localizacaoFinal.textContent = "Aguardando...";
-      horaInicial.textContent = "--:--:--";
-      horaFinal.textContent = "--:--:--"; // <-- zera o horário final
-      rodando = false;
-      btnIniciar.textContent = "Iniciar";
-      btnCancelar.style.display = "none";
+      resetarApp();
     });
+
+    // Carrega a localização inicial quando o app abre
+    resetarApp();
   </script>
 </body>
 </html>
