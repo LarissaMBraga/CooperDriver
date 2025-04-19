@@ -8,17 +8,20 @@
     body {
       font-family: Arial, sans-serif;
       margin: 0;
-      background: #f0f0f0;
+      background: #e9f9e7;
       color: #333;
+      display: flex;
+      height: 100vh;
     }
 
     .container {
       max-width: 500px;
-      margin: 20px auto;
+      margin: 20px;
       background: #fff;
       padding: 20px;
       border-radius: 12px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      flex: 1;
     }
 
     h2 {
@@ -123,31 +126,54 @@
       border-radius: 8px;
     }
 
+    .split {
+      display: flex;
+      flex: 1;
+      height: 100%;
+    }
+
+    .historico-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .entrega-container {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+    }
   </style>
 </head>
 <body>
-  <div class="container" id="principal">
-    <h2>Entrega</h2>
-    <label for="nome">Nome:</label>
-    <input type="text" id="nome" placeholder="Digite o nome" />
+  <div class="split">
+    <div class="entrega-container">
+      <div class="container" id="principal">
+        <h2>Entrega</h2>
+        <label for="nome">Nome:</label>
+        <input type="text" id="nome" placeholder="Digite o nome" />
 
-    <label for="valor">Valor:</label>
-    <input type="number" id="valor" value="25" min="0" />
+        <label for="valor">Valor:</label>
+        <input type="number" id="valor" value="25" min="0" />
 
-    <div class="info">Localização Inicial: <span id="localizacaoInicial">Carregando...</span></div>
-    <div class="info">Localização Final: <span id="localizacaoFinal">Aguardando...</span></div>
-    <div class="info">Hora Inicial: <span id="horaInicial">--:--:--</span></div>
-    <div class="info">Hora Final: <span id="horaFinal">00:00:00</span></div>
+        <div class="info">Localização Inicial: <span id="localizacaoInicial">Carregando...</span></div>
+        <div class="info">Localização Final: <span id="localizacaoFinal">Aguardando...</span></div>
+        <div class="info">Hora Inicial: <span id="horaInicial">--:--:--</span></div>
+        <div class="info">Hora Final: <span id="horaFinal">00:00:00</span></div>
 
-    <button id="btnIniciar">Iniciar</button>
-    <button id="btnCancelar">Cancelar</button>
-    <button id="btnHistorico">Ver Histórico</button>
-  </div>
+        <button id="btnIniciar">Iniciar</button>
+        <button id="btnCancelar">Cancelar</button>
+        <button id="btnHistorico">Ver Histórico</button>
+      </div>
+    </div>
 
-  <div class="container" id="historico">
-    <h2>Histórico</h2>
-    <div id="cards"></div>
-    <button id="btnVoltar">Voltar</button>
+    <div class="historico-container" id="historico">
+      <div class="container">
+        <h2>Histórico</h2>
+        <div id="cards"></div>
+        <button id="btnVoltar">Voltar</button>
+      </div>
+    </div>
   </div>
 
   <script>
