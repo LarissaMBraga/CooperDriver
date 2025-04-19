@@ -79,6 +79,13 @@
     #historico {
       display: none;
     }
+    #historico h3 {
+      position: sticky;
+      top: 0;
+      background-color: #068106;
+      margin: 0;
+      padding: 10px;
+    }
     .card {
       background: white;
       color: black;
@@ -142,164 +149,91 @@
   </div>
 
   <script>
-    let btnIniciar = document.getElementById("btnIniciar");
-    let btnCancelar = document.getElementById("btnCancelar");
-    let nomeInput = document.getElementById("nome");
-    let valorInput = document.getElementById("valor");
-    let localizacaoInicial = document.getElementById("localizacaoInicial");
-    let localizacaoFinal = document.getElementById("localizacaoFinal");
-    let horaInicial = document.getElementById("horaInicial");
-    let horaFinal = document.getElementById("horaFinal");
-    let cards = document.getElementById("cards");
+    const btnIniciar = document.getElementById("btnIniciar");
+    const btnCancelar = document.getElementById("btnCancelar");
+    const nomeInput = document.getElementById("nome");
+    const valorInput = document.getElementById("valor");
+    const localizacaoInicial = document.getElementById("localizacaoInicial");
+    const localizacaoFinal = document.getElementById("localizacaoFinal");
+    const horaInicial = document.getElementById("horaInicial");
+    const horaFinal = document.getElementById("horaFinal");
+    const cardsContainer = document.getElementById("cards");
 
-    let watchIdInicial, watchIdFinal;
     let rodando = false;
+    let dadosIniciais = {};
 
-    let timerInicial, timerFinal;
-
-    function getEndereco(lat, lon, callback) {
-      fetch(`https://nominatim.openstreetmap.org/reverse?format=jsonv2&lat=${lat}&lon=${lon}`)
-        .then(res => res.json())
-        .then(data => {
-          const address = data.address;
-          const rua = address.road || "Rua desconhecida";
-          const numero = address.house_number || "s/n";
-          const bairro = address.suburb || address.neighbourhood || "Bairro desconhecido";
-          const cidade = address.city || address.town || address.village || "Cidade desconhecida";
-          callback(`${rua}, ${numero}, ${bairro}, ${cidade}`);
-        });
+    function mostrarTela(tela) {
+      document.getElementById("principal").style.display = tela === 'principal' ? 'block' : 'none';
+      document.getElementById("historico").style.display = tela === 'historico' ? 'block' : 'none';
     }
 
-    function atualizarHoraInicial() {
-      horaInicial.textContent = new Date().toLocaleTimeString();
+    function formatarHora(data) {
+      return data.toLocaleTimeString('pt-BR');
     }
 
-    function atualizarHoraFinal() {
-      horaFinal.textContent = new Date().toLocaleTimeString();
-    }
-
-    function atualizarLocalizacaoInicial() {
+    function obterLocalizacao(callback) {
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((pos) => {
-          getEndereco(pos.coords.latitude, pos.coords.longitude, (endereco) => {
-            localizacaoInicial.textContent = endereco;
-          });
-        });
+        navigator.geolocation.getCurrentPosition(
+          pos => {
+            const coords = `Lat: ${pos.coords.latitude.toFixed(4)}, Lng: ${pos.coords.longitude.toFixed(4)}`;
+            callback(coords);
+          },
+          () => callback("Não disponível")
+        );
+      } else {
+        callback("Geolocalização não suportada");
       }
     }
 
-    setInterval(atualizarHoraInicial, 1000); // O horário inicial começa a contar assim que o app é aberto
-    setInterval(atualizarLocalizacaoInicial, 5000); // A localização inicial começa a ser atualizada automaticamente
+    btnIniciar.addEventListener("click", () => {
+      if (!rodando) {
+        obterLocalizacao(coords => {
+          localizacaoInicial.textContent = coords;
+          horaInicial.textContent = formatarHora(new Date());
+          dadosIniciais = {
+            nome: nomeInput.value,
+            valor: valorInput.value,
+            localizacaoInicial: coords,
+            horaInicial: formatarHora(new Date())
+          };
+          rodando = true;
+          btnIniciar.textContent = "Finalizar";
+          btnCancelar.style.display = "inline-block";
+        });
+      } else {
+        obterLocalizacao(coords => {
+          localizacaoFinal.textContent = coords;
+          horaFinal.textContent = formatarHora(new Date());
 
-    function iniciarMonitoramentoFinal() {
-      // Atualiza a hora final assim que iniciar o monitoramento
-      atualizarHoraFinal();
-      timerFinal = setInterval(atualizarHoraFinal, 1000);
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+            <strong>${dadosIniciais.nome || 'Sem nome'}</strong><br>
+            Valor: R$ ${dadosIniciais.valor}<br>
+            Início: ${dadosIniciais.horaInicial} - ${dadosIniciais.localizacaoInicial}<br>
+            Fim: ${formatarHora(new Date())} - ${coords}
+            <button class="lixeira" onclick="this.parentElement.remove()">🗑️</button>
+          `;
+          cardsContainer.prepend(card);
 
-      if (navigator.geolocation) {
-        watchIdFinal = navigator.geolocation.watchPosition((pos) => {
-          getEndereco(pos.coords.latitude, pos.coords.longitude, (endereco) => {
-            if (!rodando) return;
-            localizacaoFinal.textContent = endereco;
-          });
+          rodando = false;
+          btnIniciar.textContent = "Iniciar";
+          btnCancelar.style.display = "none";
         });
       }
-    }
+    });
 
-    function salvarCards() {
-      const cardsData = Array.from(document.querySelectorAll(".card")).map(card => {
-        return {
-          html: card.innerHTML,
-          timestamp: Date.now()
-        };
-      });
-      localStorage.setItem("cards", JSON.stringify(cardsData));
-    }
-
-    function carregarCards() {
-      const cardsData = JSON.parse(localStorage.getItem("cards")) || [];
-      const agora = Date.now();
-      cards.innerHTML = "";
-      cardsData.forEach(card => {
-        if (agora - card.timestamp < 30 * 24 * 60 * 60 * 1000) {
-          const div = document.createElement("div");
-          div.className = "card";
-          div.innerHTML = card.html;
-          cards.appendChild(div);
-        }
-      });
-    }
-
-    function iniciar() {
-      rodando = true;
-      btnIniciar.textContent = "Finalizar";
-      btnCancelar.style.display = "inline";
-
-      const agora = new Date();
-      horaInicial.textContent = agora.toLocaleTimeString();
-
-      // Parar o monitoramento da localização inicial e começar o da localização final
-      clearInterval(timerInicial);
-      clearInterval(watchIdInicial);
-      
-      iniciarMonitoramentoFinal();
-    }
-
-    function finalizar() {
-      rodando = false;
-      btnIniciar.textContent = "Iniciar";
-      btnCancelar.style.display = "none";
-      clearInterval(timerFinal);
-      navigator.geolocation.clearWatch(watchIdFinal);
-
-      const dataAtual = new Date().toLocaleDateString();
-      const card = document.createElement("div");
-      card.className = "card";
-      card.innerHTML = `
-        <button class="lixeira" onclick="this.parentElement.remove();salvarCards();">&#128465;</button>
-        <strong>Data:</strong> ${dataAtual}<br>
-        <strong>Nome:</strong> ${nomeInput.value}<br>
-        <strong>Valor:</strong> R$ ${valorInput.value}<br>
-        <strong>Hora Inicial:</strong> ${horaInicial.textContent}<br>
-        <strong>Hora Final:</strong> ${horaFinal.textContent}<br>
-        <strong>Localização:</strong> ${localizacaoFinal.textContent}
-      `;
-      cards.appendChild(card);
-      salvarCards();
-
+    btnCancelar.addEventListener("click", () => {
       nomeInput.value = "";
       valorInput.value = "25";
       localizacaoInicial.textContent = "Carregando...";
       localizacaoFinal.textContent = "Aguardando...";
-    }
-
-    btnIniciar.addEventListener("click", () => {
-      if (!rodando) iniciar();
-      else finalizar();
-    });
-
-    btnCancelar.addEventListener("click", () => {
+      horaInicial.textContent = "--:--:--";
+      horaFinal.textContent = "--:--:--";
       rodando = false;
       btnIniciar.textContent = "Iniciar";
       btnCancelar.style.display = "none";
-      clearInterval(timerFinal);
-      navigator.geolocation.clearWatch(watchIdFinal);
     });
-
-    function mostrarTela(tela) {
-      document.getElementById("principal").style.display = tela === 'principal' ? "block" : "none";
-      document.getElementById("historico").style.display = tela === 'historico' ? "block" : "none";
-    }
-
-    window.onload = () => {
-      carregarCards();
-      // Começa o monitoramento da localização inicial assim que o app é aberto
-      watchIdInicial = navigator.geolocation.watchPosition((pos) => {
-        getEndereco(pos.coords.latitude, pos.coords.longitude, (endereco) => {
-          localizacaoInicial.textContent = endereco;
-        });
-      });
-    };
   </script>
 </body>
 </html>
