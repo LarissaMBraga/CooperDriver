@@ -109,7 +109,7 @@
     <div class="info">Localização Inicial: <span id="localizacaoInicial">Carregando...</span></div>
     <div class="info">Hora Inicial: <span id="horaInicial">--:--:--</span></div>
     <div class="info">Localização Final: <span id="localizacaoFinal">Aguardando...</span></div>
-    <div class="info">Hora Final: <span id="horaFinal">--:--:--</span></div>
+    <div class="info">Hora Final: <span id="horaFinal">00:00:00</span></div>
 
     <button id="btnIniciar">Iniciar</button>
     <button id="btnCancelar">Cancelar</button>
@@ -158,7 +158,7 @@
       localizacaoInicial.textContent = "Carregando...";
       localizacaoFinal.textContent = "Aguardando...";
       horaInicial.textContent = "--:--:--";
-      horaFinal.textContent = "--:--:--";
+      horaFinal.textContent = "00:00:00";  // Aqui o horário final é resetado para "00:00:00"
       rodando = false;
       btnIniciar.textContent = "Iniciar";
       btnCancelar.style.display = "none";
