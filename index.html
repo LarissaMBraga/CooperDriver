@@ -220,7 +220,8 @@
       } else {
         obterLocalizacao(coords => {
           localizacaoFinal.textContent = coords;
-          horaFinal.textContent = formatarHora(new Date());
+          const horaFinalFormatada = formatarHora(new Date());
+          horaFinal.textContent = horaFinalFormatada;
 
           const card = document.createElement("div");
           card.className = "card";
@@ -229,7 +230,7 @@
             <div class="detalhes">
               Valor: R$ ${dadosIniciais.valor}<br>
               Início: ${dadosIniciais.horaInicial} - ${dadosIniciais.localizacaoInicial}<br>
-              Fim: ${formatarHora(new Date())} - ${coords}
+              Fim: ${horaFinalFormatada} - ${coords}
             </div>
             <button class="lixeira" onclick="this.parentElement.remove()">🗑️</button>
           `;
@@ -254,7 +255,7 @@
       localizacaoInicial.textContent = "Carregando...";
       localizacaoFinal.textContent = "Aguardando...";
       horaInicial.textContent = "--:--:--";
-      horaFinal.textContent = "--:--:--";
+      horaFinal.textContent = "--:--:--"; // <-- zera o horário final
       rodando = false;
       btnIniciar.textContent = "Iniciar";
       btnCancelar.style.display = "none";
