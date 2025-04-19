@@ -7,21 +7,23 @@
   <style>
     body {
       font-family: Arial, sans-serif;
-      margin: 20px;
+      margin: 0;
       background: #f0f0f0;
+      color: #333;
     }
 
     .container {
       max-width: 500px;
-      margin: auto;
-      background: white;
+      margin: 20px auto;
+      background: #fff;
       padding: 20px;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     }
 
     h2 {
       text-align: center;
+      color: #28a745;
     }
 
     label {
@@ -31,27 +33,29 @@
     input[type="text"],
     input[type="number"] {
       width: 100%;
-      padding: 8px;
-      margin-bottom: 10px;
+      padding: 10px;
+      margin-bottom: 15px;
       border: 1px solid #ccc;
-      border-radius: 6px;
+      border-radius: 8px;
+      font-size: 1em;
     }
 
     .info {
       margin: 10px 0;
       padding: 10px;
-      background: #e6f7ff;
-      border-left: 5px solid #1890ff;
-      border-radius: 6px;
+      background: #e6f7e6;
+      border-left: 5px solid #28a745;
+      border-radius: 8px;
     }
 
     button {
-      padding: 10px 16px;
-      margin: 5px 5px 0 0;
+      padding: 10px 20px;
+      margin: 10px 0;
       border: none;
-      border-radius: 6px;
+      border-radius: 8px;
       cursor: pointer;
       font-weight: bold;
+      font-size: 1em;
     }
 
     #btnIniciar {
@@ -65,12 +69,17 @@
       display: none;
     }
 
+    #historico {
+      display: none;
+      margin-top: 20px;
+    }
+
     .card {
       background: #fff;
       border: 1px solid #ddd;
       margin: 10px 0;
-      padding: 10px;
-      border-radius: 6px;
+      padding: 15px;
+      border-radius: 8px;
       position: relative;
       transition: all 0.3s ease;
       cursor: pointer;
@@ -95,6 +104,11 @@
       cursor: pointer;
       font-size: 18px;
     }
+
+    #btnHistorico {
+      background-color: #17a2b8;
+      color: white;
+    }
   </style>
 </head>
 <body>
@@ -113,11 +127,13 @@
 
     <button id="btnIniciar">Iniciar</button>
     <button id="btnCancelar">Cancelar</button>
+    <button id="btnHistorico">Ver Histórico</button>
   </div>
 
   <div class="container" id="historico">
     <h2>Histórico</h2>
     <div id="cards"></div>
+    <button id="btnVoltar">Voltar</button>
   </div>
 
   <script>
@@ -130,6 +146,8 @@
     const horaInicial = document.getElementById("horaInicial");
     const horaFinal = document.getElementById("horaFinal");
     const cardsContainer = document.getElementById("cards");
+    const btnHistorico = document.getElementById("btnHistorico");
+    const btnVoltar = document.getElementById("btnVoltar");
 
     let rodando = false;
     let dadosIniciais = {};
@@ -158,7 +176,7 @@
       localizacaoInicial.textContent = "Carregando...";
       localizacaoFinal.textContent = "Aguardando...";
       horaInicial.textContent = "--:--:--";
-      horaFinal.textContent = "00:00:00";  // Aqui o horário final é resetado para "00:00:00"
+      horaFinal.textContent = "00:00:00";
       rodando = false;
       btnIniciar.textContent = "Iniciar";
       btnCancelar.style.display = "none";
@@ -213,6 +231,16 @@
 
     btnCancelar.addEventListener("click", () => {
       resetarApp();
+    });
+
+    btnHistorico.addEventListener("click", () => {
+      document.getElementById("principal").style.display = "none";
+      document.getElementById("historico").style.display = "block";
+    });
+
+    btnVoltar.addEventListener("click", () => {
+      document.getElementById("historico").style.display = "none";
+      document.getElementById("principal").style.display = "block";
     });
 
     resetarApp();
