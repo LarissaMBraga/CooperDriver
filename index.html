@@ -5,143 +5,149 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Registro de Entregas</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
+    * {
+      box-sizing: border-box;
       margin: 0;
-      background: #e9f9e7;
-      color: #333;
-      display: flex;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #d4fc79, #96e6a1);
+      color: #2c3e50;
       height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .split {
+      display: flex;
+      flex-direction: row;
+      width: 90%;
+      height: 95%;
+      gap: 20px;
     }
 
     .container {
-      max-width: 500px;
-      margin: 20px;
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       flex: 1;
+      background-color: white;
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
     }
 
     h2 {
+      font-size: 1.8em;
       text-align: center;
-      color: #28a745;
+      margin-bottom: 20px;
+      color: #27ae60;
     }
 
     label {
-      font-weight: bold;
+      margin-bottom: 5px;
+      font-weight: 600;
     }
 
     input[type="text"],
     input[type="number"] {
-      width: 100%;
-      padding: 10px;
+      padding: 12px;
       margin-bottom: 15px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
+      border: 2px solid #ccc;
+      border-radius: 12px;
       font-size: 1em;
     }
 
     .info {
-      margin: 10px 0;
-      padding: 10px;
-      background: #e6f7e6;
-      border-left: 5px solid #28a745;
-      border-radius: 8px;
+      padding: 12px;
+      background-color: #f0fff4;
+      border-left: 6px solid #27ae60;
+      border-radius: 10px;
+      margin-bottom: 12px;
     }
 
     button {
-      padding: 10px 20px;
-      margin: 10px 0;
+      padding: 12px;
+      margin-top: 10px;
       border: none;
-      border-radius: 8px;
-      cursor: pointer;
-      font-weight: bold;
+      border-radius: 12px;
       font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
     }
 
     #btnIniciar {
-      background-color: #28a745;
+      background-color: #2ecc71;
       color: white;
     }
 
+    #btnIniciar:hover {
+      background-color: #27ae60;
+    }
+
     #btnCancelar {
-      background-color: #dc3545;
+      background-color: #e74c3c;
       color: white;
       display: none;
     }
 
-    #btnHistorico {
-      background-color: #17a2b8;
+    #btnCancelar:hover {
+      background-color: #c0392b;
+    }
+
+    #btnHistorico,
+    #btnVoltar {
+      background-color: #3498db;
       color: white;
-      display: block;
       width: 100%;
-      padding: 12px;
       font-size: 1.2em;
+    }
+
+    #btnHistorico:hover,
+    #btnVoltar:hover {
+      background-color: #2980b9;
     }
 
     #historico {
       display: none;
-      margin-top: 20px;
     }
 
     .card {
-      background: #fff;
-      border: 1px solid #ddd;
-      margin: 10px 0;
+      background: #ecf0f1;
+      margin-bottom: 15px;
       padding: 15px;
-      border-radius: 8px;
-      position: relative;
-      transition: all 0.3s ease;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       cursor: pointer;
+      position: relative;
+    }
+
+    .card:hover {
+      background: #dff9fb;
+    }
+
+    .detalhes {
+      display: none;
+      font-size: 0.9em;
+      margin-top: 10px;
     }
 
     .card.expandido .detalhes {
       display: block;
     }
 
-    .detalhes {
-      display: none;
-      margin-top: 5px;
-      font-size: 0.9em;
-    }
-
     .lixeira {
       position: absolute;
       right: 10px;
       top: 10px;
+      font-size: 1.2em;
       background: transparent;
       border: none;
+      color: #e74c3c;
       cursor: pointer;
-      font-size: 18px;
-    }
-
-    #btnVoltar {
-      background-color: #28a745;
-      color: white;
-      width: 100%;
-      padding: 12px;
-      font-size: 1.2em;
-      border-radius: 8px;
-    }
-
-    .split {
-      display: flex;
-      flex: 1;
-      height: 100%;
-    }
-
-    .historico-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .entrega-container {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
     }
   </style>
 </head>
