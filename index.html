@@ -41,6 +41,39 @@
       max-width: 500px;
     }
 
+/* Estilo para a mensagem de confirmação */
+.message {
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #2ecc71;
+  color: white;
+  padding: 15px;
+  border-radius: 8px;
+  font-weight: bold;
+  z-index: 1000;
+  display: none;
+  animation: fadeInOut 2s forwards;
+}
+
+/* Animação para o fade in e fade out */
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+
     h2 {
       font-size: 1.8em;
       text-align: center;
@@ -259,6 +292,22 @@
   }
 }
 
+function mostrarMensagem(mensagem) {
+  const mensagemDiv = document.createElement('div');
+  mensagemDiv.classList.add('message');
+  mensagemDiv.innerText = mensagem;
+  document.body.appendChild(mensagemDiv);
+
+  // Exibe a mensagem e a remove após 2 segundos
+  mensagemDiv.style.display = 'block';
+
+  // Após a animação, remove a mensagem
+  setTimeout(() => {
+    mensagemDiv.remove();
+  }, 2000); // Tempo de 2 segundos
+}
+
+
     function salvarHistoricoLocalStorage(item) {
       const historico = JSON.parse(localStorage.getItem("historicoEntregas")) || [];
       historico.push(item);
@@ -281,8 +330,6 @@
           <button class="delete-btn" onclick="deletarCard(${index})">Deletar</button>
         `;
         cardsContainer.appendChild(card);
-
-        // Apagar o card após 30 dias
         const dataCriacao = new Date(item.horaInicial);
         const dataAtual = new Date();
         const diasDeDiferenca = Math.floor((dataAtual - dataCriacao) / (1000 * 60 * 60 * 24));
@@ -300,20 +347,52 @@
     }
 
     btnIniciar.onclick = () => {
-  if (rodando) return;
-  obterLocalizacao(local => {
-    dadosIniciais = {
-      nome: nomeInput.value,
-      valor: valorInput.value,
-      localInicial: local, // A localização agora é uma string
-      horaInicial: formatarHora(new Date())
-    };
-    localizacaoInicial.textContent = local; // Exibe a string no elemento da página
-    rodando = true;
-    btnIniciar.textContent = "Finalizar"; btnCancelar.style.display = "inline-block"; startTime = new Date(); horaInicial.textContent = dadosIniciais.horaInicial;
-    atualizarRelogio();
-  });
+  if (rodando) {
+    obterLocalizacao(local => {
+      dadosIniciais.localFinal = local;
+      dadosIniciais.horaFinal = formatarHora(new Date());
+      localizacaoFinal.textContent = dadosIniciais.localFinal;
+      horaFinal.textContent = dadosIniciais.horaFinal;
+      salvarHistoricoLocalStorage(dadosIniciais);
+      alert("Entrega finalizada com sucesso!");
+      btnIniciar.textContent = "Iniciar";
+      btnCancelar.style.display = "none";
+      rodando = false;
+      clearInterval(intervalo);
+  clearInterval(intervaloInicial);
+  clearInterval(intervaloFinal);
+  atualizarHoraInicial();
+  intervaloInicial = setInterval(atualizarHoraInicial, 1000);
+  nomeInput.value = "";
+  btnIniciar.textContent = "Iniciar";
+  btnCancelar.style.display = "none";
+  localizacaoInicial.textContent = "Carregando...";
+  localizacaoFinal.textContent = "Aguardando...";
+  horaInicial.textContent = "00:00:00";
+  horaFinal.textContent = "00:00:00";
+
+      clearInterval(intervalo); 
+    });
+  } else {
+    obterLocalizacao(local => {
+      dadosIniciais = {
+        nome: nomeInput.value,
+        valor: valorInput.value,
+        localInicial: local, 
+        horaInicial: formatarHora(new Date())
+      };
+
+      localizacaoInicial.textContent = local; 
+      rodando = true;
+      btnIniciar.textContent = "Finalizar";
+      btnCancelar.style.display = "inline-block"; 
+      startTime = new Date(); 
+      horaInicial.textContent = dadosIniciais.horaInicial;
+      atualizarRelogio();
+    });
+  }
 };
+
 
 btnCancelar.onclick = () => {
   clearInterval(intervalo);
@@ -322,15 +401,13 @@ btnCancelar.onclick = () => {
   atualizarHoraInicial();
   intervaloInicial = setInterval(atualizarHoraInicial, 1000);
   nomeInput.value = "";
-  valorInput.value = "";
-  latitudeInicialSpan.textContent = "";
-  longitudeInicialSpan.textContent = "";
-  horaInicialSpan.textContent = "";
-  latitudeFinalSpan.textContent = "";
-  longitudeFinalSpan.textContent = "";
-  horaFinalSpan.textContent = "";
-  iniciarButton.style.display = "inline-block";
-  cancelarButton.style.display = "none";
+  btnIniciar.textContent = "Iniciar";
+  btnCancelar.style.display = "none";
+  localizacaoInicial.textContent = "Carregando...";
+  localizacaoFinal.textContent = "Aguardando...";
+  horaInicial.textContent = "00:00:00";
+  horaFinal.textContent = "00:00:00";
+  
   rodando = false;
 };
 
