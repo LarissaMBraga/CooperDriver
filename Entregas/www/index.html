@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Registro de Entregas</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(to right, #d4fc79, #96e6a1);
+      color: #2c3e50;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .split {
+      display: flex;
+      flex-direction: row;
+      width: 90%;
+      height: 95%;
+      gap: 20px;
+      justify-content: center;
+    }
+
+    .container {
+      flex: 1;
+      background-color: white;
+      border-radius: 16px;
+      padding: 25px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+      display: flex;
+      flex-direction: column;
+      max-width: 500px;
+    }
+
+/* Estilo para a mensagem de confirmação */
+.message {
+  position: fixed;
+  top: 10%;
+  left: 50%;
+  transform: translateX(-50%);
+  background-color: #2ecc71;
+  color: white;
+  padding: 15px;
+  border-radius: 8px;
+  font-weight: bold;
+  z-index: 1000;
+  display: none;
+  animation: fadeInOut 2s forwards;
+}
+
+/* Animação para o fade in e fade out */
+@keyframes fadeInOut {
+  0% {
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+
+    h2 {
+      font-size: 1.8em;
+      text-align: center;
+      margin-bottom: 20px;
+      color: #27ae60;
+    }
+
+    label {
+      margin-bottom: 5px;
+      font-weight: 600;
+    }
+
+    .input-group {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      padding: 12px;
+      border: 2px solid #ccc;
+      border-radius: 12px;
+      font-size: 1em;
+      flex: 1;
+    }
+
+    .info {
+      padding: 12px;
+      background-color: #f0fff4;
+      border-left: 6px solid #27ae60;
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }
+
+    button {
+      padding: 12px;
+      margin-top: 10px;
+      border: none;
+      border-radius: 12px;
+      font-size: 1em;
+      font-weight: bold;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    #btnIniciar {
+      background-color: #2ecc71;
+      color: white;
+    }
+
+    #btnIniciar:hover {
+      background-color: #27ae60;
+    }
+
+    #btnCancelar {
+      background-color: #e74c3c;
+      color: white;
+      display: none;
+    }
+
+    #btnCancelar:hover {
+      background-color: #c0392b;
+    }
+
+    #btnHistorico,
+    #btnVoltar {
+      background-color: #3498db;
+      color: white;
+      width: 100%;
+      font-size: 1.2em;
+    }
+
+    #btnHistorico:hover,
+    #btnVoltar:hover {
+      background-color: #2980b9;
+    }
+
+    #historico {
+      display: none;
+    }
+
+    .card {
+      background: #ecf0f1;
+      margin-bottom: 15px;
+      padding: 15px;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .info-time {
+      display: flex;
+      gap: 20px;
+    }
+
+    .info-time span {
+      font-weight: 600;
+    }
+
+    .delete-btn {
+      background-color: #e74c3c;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 10px;
+      cursor: pointer;
+      font-size: 0.9em;
+      transition: background-color 0.3s ease;
+    }
+
+    .delete-btn:hover {
+      background-color: #c0392b;
+    }
+  </style>
+</head>
+<body>
+  <div class="split">
+    <div class="container" id="principal">
+      <h2>Entrega</h2>
+      <div class="input-group">
+        <div>
+          <label for="nome">Nome:</label>
+          <input type="text" id="nome" placeholder="Digite o nome" />
+        </div>
+        <div>
+          <label for="valor">Valor:</label>
+          <input type="number" id="valor" value="25" min="0" />
+        </div>
+      </div>
+      <div class="info">Localização Inicial: <span id="localizacaoInicial">Carregando...</span></div>
+      <div class="info">Localização Final: <span id="localizacaoFinal">Aguardando...</span></div>
+      <div class="info-time">
+        <div>Hora Inicial: <span id="horaInicial">00:00:00</span></div>
+        <div>Hora Final: <span id="horaFinal">00:00:00</span></div>
+      </div>
+      <button id="btnIniciar">Iniciar</button>
+      <button id="btnCancelar">Cancelar</button>
+      <button id="btnHistorico">Ver Histórico</button>
+    </div>
+    <div class="container" id="historico">
+      <h2>Histórico</h2>
+      <div id="cards"></div>
+      <button id="btnVoltar">Voltar</button>
+    </div>
+  </div>
+
+  <script>
+    const btnIniciar = document.getElementById("btnIniciar");
+    const btnCancelar = document.getElementById("btnCancelar");
+    const nomeInput = document.getElementById("nome");
+    const valorInput = document.getElementById("valor");
+    const localizacaoInicial = document.getElementById("localizacaoInicial");
+    const localizacaoFinal = document.getElementById("localizacaoFinal");
+    const horaInicial = document.getElementById("horaInicial");
+    const horaFinal = document.getElementById("horaFinal");
+    const cardsContainer = document.getElementById("cards");
+    const btnHistorico = document.getElementById("btnHistorico");
+    const btnVoltar = document.getElementById("btnVoltar");
+    const historicoContainer = document.getElementById("historico");
+    const principalContainer = document.getElementById("principal");
+
+    let rodando = false;
+    let dadosIniciais = {};
+    let intervalo;
+    let startTime;
+
+   let intervaloInicial;
+    let intervaloFinal;
+    let horaInicialFixada = ''; // só define quando clicar em iniciar
+
+    window.onload = function () {
+      clearInterval(intervaloInicial);
+      clearInterval(intervaloFinal);
+      document.getElementById('horaFinal').textContent = '';
+      horaInicialFixada = '';
+      atualizarHoraInicial();
+      intervaloInicial = setInterval(atualizarHoraInicial, 1000);
+    };
+
+    function atualizarHoraInicial() {
+      const agora = new Date();
+      const hora = agora.toLocaleTimeString('pt-BR');
+      document.getElementById('horaInicial').textContent = hora;
+    }
+
+    function formatarHora(data) {
+      return data.toLocaleTimeString('pt-BR');
+    }
+
+    function atualizarRelogio() {
+      setInterval(() => {
+        if (!rodando) return;
+        horaFinal.textContent = formatarHora(new Date());
+      }, 1000);
+    }
+
+    function obterLocalizacao(callback) {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(position => {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+      const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`;
+
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          const local = `${data.address.road}, ${data.address.suburb}, ${data.address.city}, ${data.address.state}`;
+          callback(local); // Passa a string formatada para o callback
+        })
+        .catch(() => {
+          callback("Localização desconhecida");
+        });
+    });
+  } else {
+    callback("Geolocalização não disponível");
+  }
+}
+
+function mostrarMensagem(mensagem) {
+  const mensagemDiv = document.createElement('div');
+  mensagemDiv.classList.add('message');
+  mensagemDiv.innerText = mensagem;
+  document.body.appendChild(mensagemDiv);
+
+  // Exibe a mensagem e a remove após 2 segundos
+  mensagemDiv.style.display = 'block';
+
+  // Após a animação, remove a mensagem
+  setTimeout(() => {
+    mensagemDiv.remove();
+  }, 2000); // Tempo de 2 segundos
+}
+
+
+    function salvarHistoricoLocalStorage(item) {
+      const historico = JSON.parse(localStorage.getItem("historicoEntregas")) || [];
+      historico.push(item);
+      localStorage.setItem("historicoEntregas", JSON.stringify(historico));
+    }
+
+    function carregarHistorico() {
+      cardsContainer.innerHTML = "";
+      const historico = JSON.parse(localStorage.getItem("historicoEntregas")) || [];
+      historico.forEach((item, index) => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <strong>Nome:</strong> ${item.nome || "Não informado"} <br/>
+          <strong>Valor:</strong> R$ ${item.valor} <br/>
+          <strong>Local Início:</strong> ${item.localInicial} <br/>
+          <strong>Local Fim:</strong> ${item.localFinal} <br/>
+          <strong>Hora Início:</strong> ${item.horaInicial} <br/>
+          <strong>Hora Fim:</strong> ${item.horaFinal} <br/>
+          <button class="delete-btn" onclick="deletarCard(${index})">Deletar</button>
+        `;
+        cardsContainer.appendChild(card);
+        const dataCriacao = new Date(item.horaInicial);
+        const dataAtual = new Date();
+        const diasDeDiferenca = Math.floor((dataAtual - dataCriacao) / (1000 * 60 * 60 * 24));
+        if (diasDeDiferenca >= 30) {
+          deletarCard(index);
+        }
+      });
+    }
+
+    function deletarCard(index) {
+      const historico = JSON.parse(localStorage.getItem("historicoEntregas")) || [];
+      historico.splice(index, 1);
+      localStorage.setItem("historicoEntregas", JSON.stringify(historico));
+      carregarHistorico();
+    }
+
+    btnIniciar.onclick = () => {
+  if (rodando) {
+    obterLocalizacao(local => {
+      dadosIniciais.localFinal = local;
+      dadosIniciais.horaFinal = formatarHora(new Date());
+      localizacaoFinal.textContent = dadosIniciais.localFinal;
+      horaFinal.textContent = dadosIniciais.horaFinal;
+      salvarHistoricoLocalStorage(dadosIniciais);
+      alert("Entrega finalizada com sucesso!");
+      btnIniciar.textContent = "Iniciar";
+      btnCancelar.style.display = "none";
+      rodando = false;
+      clearInterval(intervalo);
+  clearInterval(intervaloInicial);
+  clearInterval(intervaloFinal);
+  atualizarHoraInicial();
+  intervaloInicial = setInterval(atualizarHoraInicial, 1000);
+  nomeInput.value = "";
+  btnIniciar.textContent = "Iniciar";
+  btnCancelar.style.display = "none";
+  localizacaoInicial.textContent = "Carregando...";
+  localizacaoFinal.textContent = "Aguardando...";
+  horaInicial.textContent = "00:00:00";
+  horaFinal.textContent = "00:00:00";
+
+      clearInterval(intervalo); 
+    });
+  } else {
+    obterLocalizacao(local => {
+      dadosIniciais = {
+        nome: nomeInput.value,
+        valor: valorInput.value,
+        localInicial: local, 
+        horaInicial: formatarHora(new Date())
+      };
+
+      localizacaoInicial.textContent = local; 
+      rodando = true;
+      btnIniciar.textContent = "Finalizar";
+      btnCancelar.style.display = "inline-block"; 
+      startTime = new Date(); 
+      horaInicial.textContent = dadosIniciais.horaInicial;
+      atualizarRelogio();
+    });
+  }
+};
+
+
+btnCancelar.onclick = () => {
+  clearInterval(intervalo);
+  clearInterval(intervaloInicial);
+  clearInterval(intervaloFinal);
+  atualizarHoraInicial();
+  intervaloInicial = setInterval(atualizarHoraInicial, 1000);
+  nomeInput.value = "";
+  btnIniciar.textContent = "Iniciar";
+  btnCancelar.style.display = "none";
+  localizacaoInicial.textContent = "Carregando...";
+  localizacaoFinal.textContent = "Aguardando...";
+  horaInicial.textContent = "00:00:00";
+  horaFinal.textContent = "00:00:00";
+  
+  rodando = false;
+};
+
+btnHistorico.onclick = () => {
+  principalContainer.style.display = "none";
+  historicoContainer.style.display = "flex";
+  carregarHistorico();
+};
+
+btnVoltar.onclick = () => {
+  historicoContainer.style.display = "none";
+  principalContainer.style.display = "flex";
+};</script> </body> </html>
