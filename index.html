@@ -27,6 +27,7 @@
       width: 90%;
       height: 95%;
       gap: 20px;
+      justify-content: center;
     }
 
     .container {
@@ -37,6 +38,7 @@
       box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
       display: flex;
       flex-direction: column;
+      max-width: 500px;
     }
 
     h2 {
@@ -51,13 +53,19 @@
       font-weight: 600;
     }
 
+    .input-group {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 15px;
+    }
+
     input[type="text"],
     input[type="number"] {
       padding: 12px;
-      margin-bottom: 15px;
       border: 2px solid #ccc;
       border-radius: 12px;
       font-size: 1em;
+      flex: 1;
     }
 
     .info {
@@ -121,64 +129,61 @@
       padding: 15px;
       border-radius: 10px;
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      cursor: pointer;
-      position: relative;
     }
 
-    .card:hover {
-      background: #dff9fb;
+    .info-time {
+      display: flex;
+      gap: 20px;
     }
 
-    .detalhes {
-      display: none;
-      font-size: 0.9em;
-      margin-top: 10px;
+    .info-time span {
+      font-weight: 600;
     }
 
-    .card.expandido .detalhes {
-      display: block;
-    }
-
-    .lixeira {
-      position: absolute;
-      right: 10px;
-      top: 10px;
-      font-size: 1.2em;
-      background: transparent;
+    .delete-btn {
+      background-color: #e74c3c;
+      color: white;
       border: none;
-      color: #e74c3c;
+      border-radius: 8px;
+      padding: 6px 10px;
       cursor: pointer;
+      font-size: 0.9em;
+      transition: background-color 0.3s ease;
+    }
+
+    .delete-btn:hover {
+      background-color: #c0392b;
     }
   </style>
 </head>
 <body>
   <div class="split">
-    <div class="entrega-container">
-      <div class="container" id="principal">
-        <h2>Entrega</h2>
-        <label for="nome">Nome:</label>
-        <input type="text" id="nome" placeholder="Digite o nome" />
-
-        <label for="valor">Valor:</label>
-        <input type="number" id="valor" value="25" min="0" />
-
-        <div class="info">Localização Inicial: <span id="localizacaoInicial">Carregando...</span></div>
-        <div class="info">Localização Final: <span id="localizacaoFinal">Aguardando...</span></div>
-        <div class="info">Hora Inicial: <span id="horaInicial">--:--:--</span></div>
-        <div class="info">Hora Final: <span id="horaFinal">00:00:00</span></div>
-
-        <button id="btnIniciar">Iniciar</button>
-        <button id="btnCancelar">Cancelar</button>
-        <button id="btnHistorico">Ver Histórico</button>
+    <div class="container" id="principal">
+      <h2>Entrega</h2>
+      <div class="input-group">
+        <div>
+          <label for="nome">Nome:</label>
+          <input type="text" id="nome" placeholder="Digite o nome" />
+        </div>
+        <div>
+          <label for="valor">Valor:</label>
+          <input type="number" id="valor" value="25" min="0" />
+        </div>
       </div>
+      <div class="info">Localização Inicial: <span id="localizacaoInicial">Carregando...</span></div>
+      <div class="info">Localização Final: <span id="localizacaoFinal">Aguardando...</span></div>
+      <div class="info-time">
+        <div>Hora Inicial: <span id="horaInicial">00:00:00</span></div>
+        <div>Hora Final: <span id="horaFinal">00:00:00</span></div>
+      </div>
+      <button id="btnIniciar">Iniciar</button>
+      <button id="btnCancelar">Cancelar</button>
+      <button id="btnHistorico">Ver Histórico</button>
     </div>
-
-    <div class="historico-container" id="historico">
-      <div class="container">
-        <h2>Histórico</h2>
-        <div id="cards"></div>
-        <button id="btnVoltar">Voltar</button>
-      </div>
+    <div class="container" id="historico">
+      <h2>Histórico</h2>
+      <div id="cards"></div>
+      <button id="btnVoltar">Voltar</button>
     </div>
   </div>
 
@@ -194,102 +199,149 @@
     const cardsContainer = document.getElementById("cards");
     const btnHistorico = document.getElementById("btnHistorico");
     const btnVoltar = document.getElementById("btnVoltar");
+    const historicoContainer = document.getElementById("historico");
+    const principalContainer = document.getElementById("principal");
 
     let rodando = false;
     let dadosIniciais = {};
+    let intervalo;
+    let startTime;
+
+   let intervaloInicial;
+    let intervaloFinal;
+    let horaInicialFixada = ''; // só define quando clicar em iniciar
+
+    window.onload = function () {
+      clearInterval(intervaloInicial);
+      clearInterval(intervaloFinal);
+      document.getElementById('horaFinal').textContent = '';
+      horaInicialFixada = '';
+      atualizarHoraInicial();
+      intervaloInicial = setInterval(atualizarHoraInicial, 1000);
+    };
+
+    function atualizarHoraInicial() {
+      const agora = new Date();
+      const hora = agora.toLocaleTimeString('pt-BR');
+      document.getElementById('horaInicial').textContent = hora;
+    }
 
     function formatarHora(data) {
       return data.toLocaleTimeString('pt-BR');
     }
 
+    function atualizarRelogio() {
+      setInterval(() => {
+        if (!rodando) return;
+        horaFinal.textContent = formatarHora(new Date());
+      }, 1000);
+    }
+
     function obterLocalizacao(callback) {
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          pos => {
-            const coords = `Lat: ${pos.coords.latitude.toFixed(4)}, Lng: ${pos.coords.longitude.toFixed(4)}`;
-            callback(coords);
-          },
-          () => callback("Não disponível")
-        );
+        navigator.geolocation.getCurrentPosition(position => {
+          const lat = position.coords.latitude;
+          const lon = position.coords.longitude;
+          const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`;
+
+          fetch(url)
+            .then(response => response.json())
+            .then(data => {
+              const local = `${data.address.road}, ${data.address.suburb}, ${data.address.city}, ${data.address.state}`;
+              callback(local);
+            })
+            .catch(() => {
+              callback("Localização desconhecida");
+            });
+        });
       } else {
-        callback("Geolocalização não suportada");
+        callback("Geolocalização não disponível");
       }
     }
 
-    function resetarApp() {
-      nomeInput.value = "";
-      valorInput.value = "25";
-      localizacaoInicial.textContent = "Carregando...";
-      localizacaoFinal.textContent = "Aguardando...";
-      horaInicial.textContent = "--:--:--";
-      horaFinal.textContent = "00:00:00";
-      rodando = false;
-      btnIniciar.textContent = "Iniciar";
-      btnCancelar.style.display = "none";
-      obterLocalizacao(coords => {
-        localizacaoInicial.textContent = coords;
+    function salvarHistoricoLocalStorage(item) {
+      const historico = JSON.parse(localStorage.getItem("historicoEntregas")) || [];
+      historico.push(item);
+      localStorage.setItem("historicoEntregas", JSON.stringify(historico));
+    }
+
+    function carregarHistorico() {
+      cardsContainer.innerHTML = "";
+      const historico = JSON.parse(localStorage.getItem("historicoEntregas")) || [];
+      historico.forEach((item, index) => {
+        const card = document.createElement("div");
+        card.className = "card";
+        card.innerHTML = `
+          <strong>Nome:</strong> ${item.nome || "Não informado"} <br/>
+          <strong>Valor:</strong> R$ ${item.valor} <br/>
+          <strong>Local Início:</strong> ${item.localInicial} <br/>
+          <strong>Local Fim:</strong> ${item.localFinal} <br/>
+          <strong>Hora Início:</strong> ${item.horaInicial} <br/>
+          <strong>Hora Fim:</strong> ${item.horaFinal} <br/>
+          <button class="delete-btn" onclick="deletarCard(${index})">Deletar</button>
+        `;
+        cardsContainer.appendChild(card);
+
+        // Apagar o card após 30 dias
+        const dataCriacao = new Date(item.horaInicial);
+        const dataAtual = new Date();
+        const diasDeDiferenca = Math.floor((dataAtual - dataCriacao) / (1000 * 60 * 60 * 24));
+        if (diasDeDiferenca >= 30) {
+          deletarCard(index);
+        }
       });
     }
 
-    btnIniciar.addEventListener("click", () => {
-      if (!rodando) {
-        obterLocalizacao(coords => {
-          localizacaoInicial.textContent = coords;
-          horaInicial.textContent = formatarHora(new Date());
-          dadosIniciais = {
-            nome: nomeInput.value,
-            valor: valorInput.value,
-            localizacaoInicial: coords,
-            horaInicial: formatarHora(new Date())
-          };
-          rodando = true;
-          btnIniciar.textContent = "Finalizar";
-          btnCancelar.style.display = "inline-block";
-        });
-      } else {
-        obterLocalizacao(coords => {
-          const finalHora = formatarHora(new Date());
-          localizacaoFinal.textContent = coords;
-          horaFinal.textContent = finalHora;
+    function deletarCard(index) {
+      const historico = JSON.parse(localStorage.getItem("historicoEntregas")) || [];
+      historico.splice(index, 1);
+      localStorage.setItem("historicoEntregas", JSON.stringify(historico));
+      carregarHistorico();
+    }
 
-          const card = document.createElement("div");
-          card.className = "card";
-          card.innerHTML = `
-            <strong>${dadosIniciais.nome || 'Sem nome'}</strong>
-            <div class="detalhes">
-              Valor: R$ ${dadosIniciais.valor}<br>
-              Início: ${dadosIniciais.horaInicial} - ${dadosIniciais.localizacaoInicial}<br>
-              Fim: ${finalHora} - ${coords}
-            </div>
-            <button class="lixeira" onclick="this.parentElement.remove()">🗑️</button>
-          `;
-          card.addEventListener('click', function (e) {
-            if (!e.target.classList.contains('lixeira')) {
-              this.classList.toggle('expandido');
-            }
-          });
+    btnIniciar.onclick = () => {
+      if (rodando) return;
+      obterLocalizacao(local => {
+        dadosIniciais = {
+          nome: nomeInput.value,
+          valor: valorInput.value,
+          localInicial: local,
+          horaInicial: formatarHora(new Date())
+        };
+        clearInterval(intervaloInicial);
+        localizacaoInicial.textContent = local;
+        rodando = true;
+        btnIniciar.textContent = "Finalizar"; btnCancelar.style.display = "inline-block"; startTime = new Date(); horaInicial.textContent = dadosIniciais.horaInicial;
+        atualizarRelogio();
+  });
+};
 
-          cardsContainer.prepend(card);
-          resetarApp();
-        });
-      }
-    });
+btnCancelar.onclick = () => {
+  clearInterval(intervalo);
+  clearInterval(intervaloInicial);
+  clearInterval(intervaloFinal);
+  atualizarHoraInicial();
+  intervaloInicial = setInterval(atualizarHoraInicial, 1000);
+  nomeInput.value = "";
+  valorInput.value = "";
+  latitudeInicialSpan.textContent = "";
+  longitudeInicialSpan.textContent = "";
+  horaInicialSpan.textContent = "";
+  latitudeFinalSpan.textContent = "";
+  longitudeFinalSpan.textContent = "";
+  horaFinalSpan.textContent = "";
+  iniciarButton.style.display = "inline-block";
+  cancelarButton.style.display = "none";
+  rodando = false;
+};
 
-    btnCancelar.addEventListener("click", () => {
-      resetarApp();
-    });
+btnHistorico.onclick = () => {
+  principalContainer.style.display = "none";
+  historicoContainer.style.display = "flex";
+  carregarHistorico();
+};
 
-    btnHistorico.addEventListener("click", () => {
-      document.getElementById("principal").style.display = "none";
-      document.getElementById("historico").style.display = "block";
-    });
-
-    btnVoltar.addEventListener("click", () => {
-      document.getElementById("historico").style.display = "none";
-      document.getElementById("principal").style.display = "block";
-    });
-
-    resetarApp();
-  </script>
-</body>
-</html>
+btnVoltar.onclick = () => {
+  historicoContainer.style.display = "none";
+  principalContainer.style.display = "flex";
+};</script> </body> </html>
