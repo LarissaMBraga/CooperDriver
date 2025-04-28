@@ -238,26 +238,26 @@
     }
 
     function obterLocalizacao(callback) {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(position => {
-          const lat = position.coords.latitude;
-          const lon = position.coords.longitude;
-          const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`;
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(position => {
+      const lat = position.coords.latitude;
+      const lon = position.coords.longitude;
+      const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`;
 
-          fetch(url)
-            .then(response => response.json())
-            .then(data => {
-              const local = `${data.address.road}, ${data.address.suburb}, ${data.address.city}, ${data.address.state}`;
-              callback(local);
-            })
-            .catch(() => {
-              callback("Localização desconhecida");
-            });
+      fetch(url)
+        .then(response => response.json())
+        .then(data => {
+          const local = `${data.address.road}, ${data.address.suburb}, ${data.address.city}, ${data.address.state}`;
+          callback(local); // Passa a string formatada para o callback
+        })
+        .catch(() => {
+          callback("Localização desconhecida");
         });
-      } else {
-        callback("Geolocalização não disponível");
-      }
-    }
+    });
+  } else {
+    callback("Geolocalização não disponível");
+  }
+}
 
     function salvarHistoricoLocalStorage(item) {
       const historico = JSON.parse(localStorage.getItem("historicoEntregas")) || [];
@@ -300,19 +300,18 @@
     }
 
     btnIniciar.onclick = () => {
-      if (rodando) return;
-      obterLocalizacao(local => {
-        dadosIniciais = {
-          nome: nomeInput.value,
-          valor: valorInput.value,
-          localInicial: local,
-          horaInicial: formatarHora(new Date())
-        };
-        clearInterval(intervaloInicial);
-        localizacaoInicial.textContent = local;
-        rodando = true;
-        btnIniciar.textContent = "Finalizar"; btnCancelar.style.display = "inline-block"; startTime = new Date(); horaInicial.textContent = dadosIniciais.horaInicial;
-        atualizarRelogio();
+  if (rodando) return;
+  obterLocalizacao(local => {
+    dadosIniciais = {
+      nome: nomeInput.value,
+      valor: valorInput.value,
+      localInicial: local, // A localização agora é uma string
+      horaInicial: formatarHora(new Date())
+    };
+    localizacaoInicial.textContent = local; // Exibe a string no elemento da página
+    rodando = true;
+    btnIniciar.textContent = "Finalizar"; btnCancelar.style.display = "inline-block"; startTime = new Date(); horaInicial.textContent = dadosIniciais.horaInicial;
+    atualizarRelogio();
   });
 };
 
