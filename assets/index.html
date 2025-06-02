@@ -19,14 +19,39 @@
       color: #2c3e50;
     }
 
+   
     .scroll-container {
-      overflow-x: auto;
-      width: 100%;
+      display: flex;
+      width: max-content; /* largura máxima conforme o conteúdo */
+      min-width: 100vw;
+    }
+
+    .left, .right {
+      height: 100vh;
+      padding: 2rem;
+      box-sizing: border-box;
+    }
+
+    .left {
+      background-color: #fff;
+      width: 400px; /* largura menor */
+      border-right: 2px solid #ccc; /* "split" fino */
+    }
+
+    .right {
+      background-color: #f0f0f0;
+      width: 1000px; /* ou o que preferir */
+    }
+
+    @media (max-width: 768px) {
+      .left, .right {
+        padding: 1rem;
+      }
     }
 
     .container {
       min-width: 320px;
-      max-width: 1200px;
+      max-width: 700px;
       margin: 0 auto;
       padding: 25px;
       background-color: white;
@@ -186,6 +211,8 @@
 </head>
 <body>
   <div class="split">
+       <div class="scroll-container">
+    <div class="container">
     <div class="container" id="principal">
       <h2>Entrega</h2>
       <div class="input-group">
@@ -212,6 +239,8 @@
       <h2>Histórico</h2>
       <div id="cards"></div>
       <button id="btnVoltar">Voltar</button>
+    </div>
+    </div>
     </div>
   </div>
 
