@@ -4,7 +4,7 @@ import { WebView } from 'react-native-webview';
 export default function App() {
   return (
     <WebView
-      source={{ uri: 'https://github.com/LarissaMBraga/CooperDriver/assets/index.html' }} 
+      source={{ uri: 'https://larissambraga.github.io/CooperDriver/' }} 
       style={{ flex: 1 }}
     />
   );

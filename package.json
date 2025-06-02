@@ -9,7 +9,7 @@
   },
   "name": "geolocation",
   "version": "1.0.0",
-  "main": "service-worker.js",
+  "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
