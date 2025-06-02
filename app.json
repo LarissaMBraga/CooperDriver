@@ -1,0 +1,16 @@
+{
+  "expo": {
+    "extra": {
+      "eas": {
+        "projectId": "dc039028-90b5-46e4-80f1-9a996883de66"
+      }
+    },
+    "android": {
+      "package": "com.larybraga128.geolocation"
+    },
+    "owner": "larybraga128",
+    "plugins": [
+      "expo-asset"
+    ]
+  }
+}
