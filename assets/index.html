@@ -24,17 +24,22 @@ html, body {
 }
 
 .split {
-  display: flex;
-  flex-direction: column;
-  width: 95%;
+  width: 90vw;             /* usa 90% da largura da viewport, mais seguro que % fixo */
   max-width: 500px;
-  max-height: 95%;
+  max-height: 95vh;
+  height: auto;
   background-color: white;
   border-radius: 16px;
   padding: 20px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  margin: 0 auto;          /* para garantir centralização */
+  box-sizing: border-box;  /* para garantir que padding não ultrapasse a largura */
 }
+
 
     .container {
   width: 100%;
